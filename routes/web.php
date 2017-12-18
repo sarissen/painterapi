@@ -11,6 +11,17 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
+$router->get('/', function() use ($app) {
+    return "Lumen RESTful API for Painter App";
 });
+
+
+$router->get('api/v1/images','App\Http\Controllers\ImageController@index');
+
+$router->get('api/v1/image/{id}','App\Http\Controllers\ImageController@getImage');
+
+$router->post('api/v1/image','App\Http\Controllers\ImageController@createImage');
+
+$router->put('api/v1/image/{id}','App\Http\Controllers\ImageController@updateImage');
+
+$router->delete('api/v1/image/{id}','App\Http\Controllers\ImageController@deleteImage');
