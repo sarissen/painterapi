@@ -7,7 +7,8 @@
     "require": {
         "php": ">=7.0",
         "laravel/lumen-framework": "5.5.*",
-        "vlucas/phpdotenv": "~2.2"
+        "vlucas/phpdotenv": "~2.2",
+        "league/color-extractor": "^0.3.2"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
@@ -21,7 +22,6 @@
     },
     "autoload-dev": {
         "classmap": [
-            "tests/",
             "database/"
         ]
     },
