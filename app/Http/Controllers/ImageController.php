@@ -75,14 +75,6 @@ class ImageController extends Controller
         return response()->json('deleted');
     }
 
-    public function updateImage(Request $request, $id){
-        $image  = Image::find($id);
-        $image->path = $request->input('path');
-        $image->save();
-
-        return response()->json($image);
-    }
-
     public function getImageData(Request $request){
         $url = $request->get('url');
 
