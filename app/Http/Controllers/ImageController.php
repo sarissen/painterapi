@@ -39,8 +39,33 @@ class ImageController extends Controller
 
         $image = Image::create($request->all());
 
-        return response()->json($image);
+        $imageData = $request->get('imageData');
 
+        $parts = explode(',', $imageData);
+        $imageData = base64_decode($parts[1]);
+
+        $dir = '/images/' . $image['id'];
+        $path = $dir . '/image.png';
+
+        $image['path'] = 'http://' . $request->getHttpHost() . $path;
+
+        if(!is_dir(app()->basePath() . '/public' . $dir)){
+            mkdir(app()->basePath() . '/public' . $dir, 0777, true);
+        }
+
+        file_put_contents(app()->basePath() . '/public' . $path, $imageData);
+
+        list($width, $height, $type) = getimagesize(app()->basePath() . '/public' . $path);
+
+        if($type !== IMAGETYPE_PNG){
+            unlink(app()->basePath() . '/public' . $path);
+            $image->delete();
+            return response()->json('deleted');
+        }
+
+        $image->save();
+
+        return response()->json($image);
     }
 
     public function deleteImage($id){
