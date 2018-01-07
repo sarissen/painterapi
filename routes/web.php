@@ -29,3 +29,5 @@ $router->delete('api/v1/image/{id}','ImageController@deleteImage');
 $router->post('api/v1/image/data','ImageController@getImageData');
 
 $router->get('api/v1/user','UserController@getCurrentUser');
+
+$router->post('api/v1/user','UserController@createUser');
