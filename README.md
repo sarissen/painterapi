@@ -34,4 +34,6 @@ php artisan migrate
 
 # create .env file
 cp .env.default .env
+
+# edit .env file
 ```
