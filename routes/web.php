@@ -22,8 +22,6 @@ $router->get('api/v1/image/{id}','ImageController@getImage');
 
 $router->post('api/v1/image','ImageController@createImage');
 
-$router->put('api/v1/image/{id}','ImageController@updateImage');
-
 $router->delete('api/v1/image/{id}','ImageController@deleteImage');
 
 $router->post('api/v1/image/data','ImageController@getImageData');
