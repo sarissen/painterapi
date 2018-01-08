@@ -36,4 +36,11 @@ php artisan migrate
 cp .env.default .env
 
 # edit .env file
+
+# create oauth clients
+php artisan passport:install
+
+# edit vue store
+# go to the file src/classes/Store.js in the frontend vue project and edit the parameters in it, 
+# you can find the client_id and client_secret in the oauth_clients table (client_id is most likely 2, the password client)
 ```
