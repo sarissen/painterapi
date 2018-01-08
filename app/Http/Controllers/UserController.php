@@ -21,6 +21,10 @@ class UserController
     }
 
     public function getCurrentUser(Request $request){
-        return response()->json($request->user());
+        if($request->user()) {
+            return response()->json($request->user());
+        }else{
+            return response()->json(null);
+        }
     }
 }
