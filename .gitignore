@@ -5,3 +5,4 @@ Homestead.yaml
 .env
 /bin
 /public/images
+/composer.phar

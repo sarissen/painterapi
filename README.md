@@ -28,15 +28,15 @@ see: https://getcomposer.org/download/
 # install dependencies
 composer install
 
-# create database table
-
-# update database schema
-php artisan migrate
-
 # create .env file
 cp .env.default .env
 
 # edit .env file
+
+# create database table
+
+# update database schema
+php artisan migrate
 
 # create oauth clients
 php artisan passport:install
