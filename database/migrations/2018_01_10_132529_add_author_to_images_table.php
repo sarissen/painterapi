@@ -14,7 +14,7 @@ class AddAuthorToImagesTable extends Migration
     public function up()
     {
         Schema::table('images', function (Blueprint $table) {
-            $table->integer('user_id')->unsigned();
+            $table->integer('user_id')->unsigned()->nullable();
 
             $table->foreign('user_id', 'image_author')->references('id')->on('users')->onDelete('cascade');
         });
@@ -28,6 +28,7 @@ class AddAuthorToImagesTable extends Migration
     public function down()
     {
         Schema::table('images', function (Blueprint $table) {
+            $table->dropForeign('image_author');
             $table->dropColumn('user_id');
         });
     }

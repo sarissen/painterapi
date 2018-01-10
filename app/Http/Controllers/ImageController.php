@@ -38,6 +38,9 @@ class ImageController extends Controller
     public function createImage(Request $request){
 
         $image = Image::create($request->all());
+        if (Auth::check()) {
+            $image->user_id = Auth::id();
+        }
 
         $imageData = $request->get('imageData');
 
