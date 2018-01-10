@@ -31,9 +31,9 @@ composer install
 # create .env file
 cp .env.default .env
 
-# edit .env file
+# edit .env file database username and password
 
-# create database table
+# create database
 
 # update database schema
 php artisan migrate
