@@ -45,9 +45,9 @@ $router->delete('api/v1/image/{id}/like', 'LikeController@unlikeImage');
 
 $router->put('api/v1/image/{id}/comment', 'CommentController@addComment');
 
-$router->post('api/v1/image/{id}/comment', 'CommentController@editComment');
+$router->post('api/v1/comment/{id}', 'CommentController@editComment');
 
-$router->delete('api/v1/image/{id}/comment', 'CommentController@deleteComment');
+$router->delete('api/v1/comment/{id}', 'CommentController@deleteComment');
 
 /**
  * User routes

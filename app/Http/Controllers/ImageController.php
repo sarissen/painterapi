@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Comment;
 use App\Image;
 use Illuminate\Http\Request;
 use League\ColorExtractor\Color;
@@ -38,11 +39,20 @@ class ImageController extends Controller
 
     public function getImage($id){
 
-        $image = Image::leftJoin('likes', 'images.id', '=', 'likes.image_id')
+        $image = Image::leftJoin('users', 'images.user_id', '=', 'users.id')
+            ->leftJoin('likes', 'images.id', '=', 'likes.image_id')
             ->where('images.id', $id)
             ->groupBy('images.id')
-            ->select('images.*', DB::raw('count(likes.image_id) as likes'))
+            ->select('images.id', 'images.path', 'images.created_at', 'images.updated_at',
+                'users.name', DB::raw('count(likes.image_id) as likes'))
             ->firstOrFail();
+
+        // TODO limit amount of comments returned, use pagination
+        $comments = Comment::where('image_id', $id)
+            ->orderBy('created_at')
+            ->get();
+
+        $image['comments'] = $comments;
 
         return response()->json($image);
     }
