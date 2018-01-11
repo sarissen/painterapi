@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use League\ColorExtractor\Color;
 use League\ColorExtractor\ColorExtractor;
 use League\ColorExtractor\Palette;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ImageController extends Controller
 {
@@ -22,7 +24,13 @@ class ImageController extends Controller
 
     public function index(){
 
-        $images  = Image::all();
+        $images = DB::table('images')
+            ->leftJoin('users', 'images.user_id', '=', 'users.id')
+            ->leftJoin('likes', 'images.id', '=', 'likes.image_id')
+            ->groupBy('images.id')
+            ->select('images.id', 'images.path', 'images.created_at', 'images.updated_at',
+                'users.name', DB::raw('count(likes.image_id) as likes'))
+            ->get();
 
         return response()->json($images);
 
@@ -30,7 +38,11 @@ class ImageController extends Controller
 
     public function getImage($id){
 
-        $image  = Image::find($id);
+        $image = Image::leftJoin('likes', 'images.id', '=', 'likes.image_id')
+            ->where('images.id', $id)
+            ->groupBy('images.id')
+            ->select('images.*', DB::raw('count(likes.image_id) as likes'))
+            ->firstOrFail();
 
         return response()->json($image);
     }

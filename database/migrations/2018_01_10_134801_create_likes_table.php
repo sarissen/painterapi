@@ -22,6 +22,8 @@ class CreateLikesTable extends Migration
             $table->integer('user_id')->unsigned();
             $table->foreign('user_id', 'like_author')->references('id')->on('users')->onDelete('cascade');
 
+            $table->unique(['image_id', 'user_id'], 'unique_like');
+
             $table->timestamp('created_at');
         });
     }
