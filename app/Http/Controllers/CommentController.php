@@ -38,13 +38,15 @@ class CommentController extends Controller
 
         $comment = new Comment;
 
-        $comment->text = $request->get('text');
+        $comment->text = $request->input('text');
         $comment->image_id = $id;
         $comment->user_id = Auth::id();
 
         if (!$comment->save()) {
             return response('failed to add comment', 500);
         }
+
+        $comment->author = Auth::user()->name;
 
         return response()->json($comment);
     }

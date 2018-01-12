@@ -43,7 +43,9 @@ $router->delete('api/v1/image/{id}/like', 'LikeController@unlikeImage');
  * Comment routes
  */
 
-$router->put('api/v1/image/{id}/comment', 'CommentController@addComment');
+// There is a bug in Lumen/Laravel where request parameters cannot be accessed
+// for the PUT method, so I made de addComment a POST instead
+$router->post('api/v1/image/{id}/comment', 'CommentController@addComment');
 
 $router->post('api/v1/comment/{id}', 'CommentController@editComment');
 

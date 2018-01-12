@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Comment;
 use App\Image;
+use App\Like;
 use Illuminate\Http\Request;
 use League\ColorExtractor\Color;
 use League\ColorExtractor\ColorExtractor;
@@ -30,7 +31,7 @@ class ImageController extends Controller
             ->leftJoin('likes', 'images.id', '=', 'likes.image_id')
             ->groupBy('images.id')
             ->select('images.id', 'images.path', 'images.created_at', 'images.updated_at',
-                'users.name', DB::raw('count(likes.image_id) as likes'))
+                'users.name as author', DB::raw('count(likes.image_id) as likes'))
             ->get();
 
         return response()->json($images);
@@ -44,15 +45,21 @@ class ImageController extends Controller
             ->where('images.id', $id)
             ->groupBy('images.id')
             ->select('images.id', 'images.path', 'images.created_at', 'images.updated_at',
-                'users.name', DB::raw('count(likes.image_id) as likes'))
+                'users.name as author', DB::raw('count(likes.image_id) as likes'))
             ->firstOrFail();
 
         // TODO limit amount of comments returned, use pagination
-        $comments = Comment::where('image_id', $id)
-            ->orderBy('created_at')
+        $comments = Comment::leftJoin('users', 'comments.user_id', '=', 'users.id')
+            ->where('image_id', $id)
+            ->latest()
+            ->select('comments.*', 'users.name as author')
             ->get();
-
         $image['comments'] = $comments;
+
+        $liked = Like::where('image_id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+        $image['liked'] = !!$liked;
 
         return response()->json($image);
     }
