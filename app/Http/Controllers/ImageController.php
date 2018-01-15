@@ -24,15 +24,39 @@ class ImageController extends Controller
         //
     }
 
-    public function index(){
+    public function index(Request $request){
+        $orderBy = 'created_at';
 
-        $images = DB::table('images')
+        // Get order parameter
+        if ($request->has('orderBy')) {
+            $orderBy = $request->get('orderBy');
+
+            if ($orderBy !== 'date' && $orderBy !== 'likes') {
+                return response('invalid orderBy parameter', 400);
+            } else if ($orderBy === 'date') {
+                $orderBy = 'created_at';
+            }
+        }
+
+        $query = DB::table('images')
             ->leftJoin('users', 'images.user_id', '=', 'users.id')
             ->leftJoin('likes', 'images.id', '=', 'likes.image_id')
             ->groupBy('images.id')
             ->select('images.id', 'images.path', 'images.created_at', 'images.updated_at',
-                'users.name as author', DB::raw('count(likes.image_id) as likes'))
-            ->get();
+                'users.name as author', DB::raw('count(likes.image_id) as likes'));
+
+        // Get own parameter (whether to retrieve only the user's images or not)
+        $own = $request->get('own');
+
+        if ($own === 'true') {
+            if (!Auth::check()) {
+                return response('Unauthorized.', 401);
+            }
+
+            $query->where('images.user_id', '=', Auth::id());
+        }
+
+        $images = $query->orderBy($orderBy, 'desc')->get();
 
         return response()->json($images);
 
@@ -101,7 +125,16 @@ class ImageController extends Controller
     }
 
     public function deleteImage($id){
-        $image  = Image::find($id);
+        if (!Auth::check() || !Auth::id()) {
+            return response('Unauthorized.', 401);
+        }
+
+        $image = Image::find($id);
+
+        if ($image->user_id !== Auth::id()) {
+            return response('Unauthorized.', 401);
+        }
+
         $image->delete();
 
         return response()->json('deleted');

@@ -90,7 +90,7 @@ class CommentController extends Controller
 
         // Check if found comment was posted by the logged in user
         if ($comment->user_id !== Auth::id()) {
-            return response('unauthorized', 401);
+            return response('Unauthorized.', 401);
         }
 
         $comment->delete();
