@@ -23,7 +23,6 @@ $router->get('api/v1/images','ImageController@index');
 
 $router->get('api/v1/image/{id}','ImageController@getImage');
 
-// TODO use put instead of post for creating a new image
 $router->post('api/v1/image','ImageController@createImage');
 
 $router->delete('api/v1/image/{id}','ImageController@deleteImage');
@@ -44,7 +43,7 @@ $router->delete('api/v1/image/{id}/like', 'LikeController@unlikeImage');
  */
 
 // There is a bug in Lumen/Laravel where request parameters cannot be accessed
-// for the PUT method, so I made de addComment a POST instead
+// for the PUT method, so I made thee addComment a POST instead
 $router->post('api/v1/image/{id}/comment', 'CommentController@addComment');
 
 $router->post('api/v1/comment/{id}', 'CommentController@editComment');
@@ -57,5 +56,4 @@ $router->delete('api/v1/comment/{id}', 'CommentController@deleteComment');
 
 $router->get('api/v1/user','UserController@getCurrentUser');
 
-// TODO use put instead of post for creating a new user
 $router->post('api/v1/user','UserController@createUser');
