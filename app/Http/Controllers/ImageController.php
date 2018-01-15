@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Comment;
 use App\Image;
+use App\Like;
 use Illuminate\Http\Request;
 use League\ColorExtractor\Color;
 use League\ColorExtractor\ColorExtractor;
 use League\ColorExtractor\Palette;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ImageController extends Controller
 {
@@ -20,9 +24,39 @@ class ImageController extends Controller
         //
     }
 
-    public function index(){
+    public function index(Request $request){
+        $orderBy = 'created_at';
 
-        $images  = Image::all();
+        // Get order parameter
+        if ($request->has('orderBy')) {
+            $orderBy = $request->get('orderBy');
+
+            if ($orderBy !== 'date' && $orderBy !== 'likes') {
+                return response('invalid orderBy parameter', 400);
+            } else if ($orderBy === 'date') {
+                $orderBy = 'created_at';
+            }
+        }
+
+        $query = DB::table('images')
+            ->leftJoin('users', 'images.user_id', '=', 'users.id')
+            ->leftJoin('likes', 'images.id', '=', 'likes.image_id')
+            ->groupBy('images.id')
+            ->select('images.id', 'images.path', 'images.created_at', 'images.updated_at',
+                'users.name as author', DB::raw('count(likes.image_id) as likes'));
+
+        // Get own parameter (whether to retrieve only the user's images or not)
+        $own = $request->get('own');
+
+        if ($own === 'true') {
+            if (!Auth::check()) {
+                return response('Unauthorized.', 401);
+            }
+
+            $query->where('images.user_id', '=', Auth::id());
+        }
+
+        $images = $query->orderBy($orderBy, 'desc')->get();
 
         return response()->json($images);
 
@@ -30,7 +64,26 @@ class ImageController extends Controller
 
     public function getImage($id){
 
-        $image  = Image::find($id);
+        $image = Image::leftJoin('users', 'images.user_id', '=', 'users.id')
+            ->leftJoin('likes', 'images.id', '=', 'likes.image_id')
+            ->where('images.id', $id)
+            ->groupBy('images.id')
+            ->select('images.id', 'images.path', 'images.created_at', 'images.updated_at',
+                'users.name as author', DB::raw('count(likes.image_id) as likes'))
+            ->firstOrFail();
+
+        // TODO limit amount of comments returned, use pagination
+        $comments = Comment::leftJoin('users', 'comments.user_id', '=', 'users.id')
+            ->where('image_id', $id)
+            ->latest()
+            ->select('comments.*', 'users.name as author')
+            ->get();
+        $image['comments'] = $comments;
+
+        $liked = Like::where('image_id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+        $image['liked'] = !!$liked;
 
         return response()->json($image);
     }
@@ -38,6 +91,9 @@ class ImageController extends Controller
     public function createImage(Request $request){
 
         $image = Image::create($request->all());
+        if (Auth::check()) {
+            $image->user_id = Auth::id();
+        }
 
         $imageData = $request->get('imageData');
 
@@ -69,7 +125,16 @@ class ImageController extends Controller
     }
 
     public function deleteImage($id){
-        $image  = Image::find($id);
+        if (!Auth::check() || !Auth::id()) {
+            return response('Unauthorized.', 401);
+        }
+
+        $image = Image::find($id);
+
+        if ($image->user_id !== Auth::id()) {
+            return response('Unauthorized.', 401);
+        }
+
         $image->delete();
 
         return response()->json('deleted');
